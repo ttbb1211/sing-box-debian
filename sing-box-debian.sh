@@ -29,7 +29,7 @@
 set -u
 
 SB_FALLBACK_VERSION="1.14.3"          # GitHub API 不可用时的兜底版本
-SCRIPT_VER="1.1"                      # 本脚本自身版本(用于判断 sb 是否需要更新)
+SCRIPT_VER="1.2"                      # 本脚本自身版本(用于判断 sb 是否需要更新)
 CONF_DIR="/etc/sb-onekey"
 PARAMS="$CONF_DIR/params.env"
 BIN="/usr/local/bin/sb-onekey"        # sing-box 二进制(不是本脚本)
@@ -1798,7 +1798,7 @@ do_self_update() {
         return 0
     fi
     # 下载内容必须语法通过,否则绝不覆盖(防止把 404 页面写进 sb)
-    if ! sh -n "$_tmp" 2>/dev/null; then
+    if ! bash -n "$_tmp" 2>/dev/null; then
         rm -f "$_tmp"
         die "下载的脚本语法校验失败,已中止,原脚本未改动"
     fi
