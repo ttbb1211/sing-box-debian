@@ -30,7 +30,7 @@ onekey 只能跑 Alpine，而实际手上的 VPS 大多是 Debian/Ubuntu。本�
 
 | 项 | 范围 |
 |---|---|
-| 系统 | Debian 10 / 11 / 12、Ubuntu 20.04 / 22.04 / 24.04 |
+| 系统 | Debian 10 / 11 / 12 / 13、Ubuntu 20.04 / 22.04 / 24.04 |
 | init | systemd |
 | 架构 | `x86_64`(amd64)、`aarch64`(arm64)、`armv7`、`armv6`、`i386` |
 | 协议 | vless-reality（xtls-rprx-vision）+ hysteria2 |
