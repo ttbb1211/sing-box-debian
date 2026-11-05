@@ -1,0 +1,87 @@
+name: release
+
+# 推 tag 或推 main 时：
+#   ① 有 tag 但没 Release → 建
+#   ② 已有 Release → 标题/正文与仓库内文案不一致时同步（幂等，可反复跑）
+# 用仓库自带的 GITHUB_TOKEN，不需要个人 PAT。
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 补建 / 同步 Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          git fetch --tags --force
+
+          # 已发版本的标题。不在这里的 tag 用 tag 名当标题。
+          # ★ 这张表要跟历史 Release 的实际标题保持一致，否则同步逻辑会把旧标题改成纯 tag 名。
+          title_for() {
+            case "$1" in
+              v1.3) echo "v1.3 — Reality 不在 443 时由 nginx 提供伪装站" ;;
+              v1.2) echo "v1.2 — 修 sb -U 自升级的语法校验" ;;
+              v1.1) echo "v1.1 — 默认 SNI 改为 www.broadcom.com" ;;
+              v1.0) echo "v1.0 — 首版" ;;
+              *)    echo "$1" ;;
+            esac
+          }
+
+          changed=0
+          for tag in $(git tag -l 'v*' --sort=v:refname); do
+            notes=".github/release-notes/$tag.md"
+            want="$(title_for "$tag")"
+
+            if gh release view "$tag" >/dev/null 2>&1; then
+              cur="$(gh release view "$tag" --json name -q .name)"
+              if [ "$cur" != "$want" ]; then
+                echo "同步标题: $tag  「$cur」→「$want」"
+                gh release edit "$tag" --title "$want"
+                changed=1
+              fi
+              if [ -f "$notes" ]; then
+                gh release view "$tag" --json body -q .body > /tmp/_cur_body.txt
+                # 忽略空白差异比较，避免 GitHub 规范化正文后每次推送都重写一遍
+                cur_sum="$(tr -d '[:space:]' < /tmp/_cur_body.txt | md5sum | cut -d' ' -f1)"
+                want_sum="$(tr -d '[:space:]' < "$notes" | md5sum | cut -d' ' -f1)"
+                if [ "$cur_sum" != "$want_sum" ]; then
+                  echo "同步正文: $tag"
+                  gh release edit "$tag" --notes-file "$notes"
+                  changed=1
+                fi
+              fi
+              echo "已存在: $tag"
+              continue
+            fi
+
+            echo "补建 Release: $tag"
+            if [ -f "$notes" ]; then
+              gh release create "$tag" \
+                --title "$want" \
+                --notes-file "$notes" \
+                --verify-tag
+            else
+              gh release create "$tag" \
+                --title "$want" \
+                --generate-notes \
+                --verify-tag
+            fi
+            changed=1
+          done
+
+          if [ "$changed" = "0" ]; then
+            echo "所有 Release 均为最新，无需处理"
+          fi
