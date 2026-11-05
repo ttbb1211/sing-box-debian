@@ -36,7 +36,7 @@ onekey 只能跑 Alpine，而实际手上的 VPS 大多是 Debian/Ubuntu。本�
 | init | systemd |
 | 架构 | `x86_64`(amd64)、`aarch64`(arm64)、`armv7`、`armv6`、`i386` |
 | 协议 | vless-reality（xtls-rprx-vision）+ hysteria2 |
-| 证书 | `steal`（偷证书自签，默认）/ `own`（自有域名 + Let's Encrypt 真证书） |
+| 证书 | `steal`（借用大厂证书 + hy2 自签，默认）/ `own`（自有域名 + Let's Encrypt 真证书） |
 
 ---
 
