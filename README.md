@@ -91,6 +91,15 @@ hysteria2://<password>@<ip>:<port>?sni=你的域名#节点名
 - 80 端口需放行（ACME 验证 + 回落站前置）
 - `acme.sh` 续期钩子会自动调 `sb reload-cert`（nginx reload + 重启 sing-box），证书到期前自动换新
 
+**443 归谁，按 `VLESS_PORT` 决定**（v1.3 起）：
+
+| `VLESS_PORT` | 443 归 | 结果 |
+|---|---|---|
+| `443` | Reality | nginx 只监听 80 + `127.0.0.1:8001`，浏览器访问域名走 Reality 回落看到站点 |
+| `≠443` | nginx | nginx 额外 `listen 443 ssl` 直接提供伪装站，浏览器访问域名正常打开 |
+
+早期版本在 `VLESS_PORT≠443` 时把 80 无条件 301 到空着的 443，浏览器会卡在「此网站不支持安全连接」。升级后重跑 `sb domain` 即可修好；443 被别的进程占着会自动跳过，只影响伪装不影响节点。
+
 ---
 
 ## 从 fscarmen 迁移
