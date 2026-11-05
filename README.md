@@ -6,6 +6,8 @@ Debian / Ubuntu 一键搭建 **vless-reality + hysteria2**，systemd 管理，�
 两者**命令名一致**（`sb`）、**目录与服务名完全隔离**（`/etc/sb-onekey` + `sb-onekey.service`），
 可以和 fscarmen 的 `sing-box` 同机共存互不影响。
 
+**版本与改动记录：[Releases](https://github.com/ttbb1211/sing-box-debian/releases)** · [全部提交](https://github.com/ttbb1211/sing-box-debian/commits/main)
+
 ---
 
 ## 为什么有这个项目
